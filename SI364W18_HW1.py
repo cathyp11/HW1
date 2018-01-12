@@ -31,10 +31,28 @@ def movie_info(movie):
 	params_dict['term'] = movie
 	res = requests.get(base_url, params = params_dict)
 	text = res.text
-	# jsons = json.loads(text)
-	# data = json.dumps(jsons)
-	# return str(jsons)
 	return text
+
+# Problem 3
+@app.route('/question', methods = ['POST', 'GET'])
+def double():
+	if request.method == 'POST':
+		num = int(request.form['number']) 
+		doubled = num * 2
+		return 'Double your favorite number is ' + str(doubled)
+	else:
+		s = """<!DOCTYPE html>
+				<html>
+				<body>
+				<form method='POST'>
+				  Enter Your Favorite Number:<br>
+				  <input type="number" name="number">
+				  <br>
+				  <input type="submit" value="Submit">
+				</form>
+				</body>
+				</html>"""
+		return s
 
 if __name__ == '__main__':
     app.run()
