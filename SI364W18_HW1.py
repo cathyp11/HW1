@@ -5,13 +5,17 @@
 #################################
 
 ## List below here, in a comment/comments, the people you worked with on this assignment AND any resources you used to find code (50 point deduction for not doing so). If none, write "None".
-
+# worked alone
+# https://www.yelp.com/developers/documentation/v3/business_search
+# https://affiliate.itunes.apple.com/resources/documentation/itunes-store-web-service-search-api/
 
 
 ## [PROBLEM 1] - 150 points
 ## Below is code for one of the simplest possible Flask applications. Edit the code so that once you run this application locally and go to the URL 'http://localhost:5000/class', you see a page that says "Welcome to SI 364!"
 
-from flask import Flask
+from flask import Flask, request
+import requests
+import json
 app = Flask(__name__)
 app.debug = True
 
@@ -36,23 +40,56 @@ def movie_info(movie):
 # Problem 3
 @app.route('/question', methods = ['POST', 'GET'])
 def double():
+	s = """<form method='POST'>
+				Enter Your Favorite Number:<br>
+				<input type="text" name="number">
+				<br>
+				<input type="submit" value="Submit">
+			</form>"""
 	if request.method == 'POST':
 		num = int(request.form['number']) 
 		doubled = num * 2
 		return 'Double your favorite number is ' + str(doubled)
 	else:
-		s = """<!DOCTYPE html>
-				<html>
-				<body>
-				<form method='POST'>
-				  Enter Your Favorite Number:<br>
-				  <input type="number" name="number">
-				  <br>
-				  <input type="submit" value="Submit">
-				</form>
-				</body>
-				</html>"""
 		return s
+
+yelp_access_token = "ztsjq_LquhhLU5ABi4zWOIOISD-jy8UiWijyAzLb0yV7MChsj3pLa6ZP6yruRkTdS6M2SRvm3olECWEx6GTsE1JLEDkkHWS5oyWYYYSFfbAodGQ0-NmJFQMshTATWnYx"
+
+@app.route('/problem4form', methods = ['POST', 'GET'])
+def problem():
+	ls = []
+	result = ""
+	if request.method == 'POST':
+		url = "https://api.yelp.com/v3/businesses/search?term=restaurants&limit=10&sort_by=rating&location=" + request.form['location']
+		yelp_api = requests.get(url, headers = {'Authorization': "Bearer " + yelp_access_token, 'token_type': "Bearer"})
+		data_y = json.loads(yelp_api.text)
+		info = request.form.getlist('info')
+		for b in data_y['businesses']:
+			dic = {}	
+			dic['Name'] = b['name']		
+			if 'rating' in info:
+				dic['Rating'] = b['rating']
+			if 'price' in info:
+				dic['Price'] = b['price']
+			if 'phone' in info:
+				dic['Phone Number'] = b['phone']
+			ls.append(dic)
+		for l in ls:
+			for k, v in l.items():
+				result += "{}: {}<br>".format(k,v)
+		return result
+
+	else:
+		form = '''<form method = 'POST'>
+		<br>
+		<input type = 'text' name = 'location'></input><br>
+		<input type = 'checkbox' name = 'info' value = 'rating'> Rating </input><br>
+		<input type = 'checkbox' name = 'info' value = 'price'> Price Range </input><br>
+		<input type = 'checkbox' name = 'info' value = 'phone'> Phone Contact </input><br>
+		<input type="submit" value="Submit">
+		</form>'''
+		return form
+
 
 if __name__ == '__main__':
     app.run()
