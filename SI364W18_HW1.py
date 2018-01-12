@@ -23,6 +23,19 @@ def hello_to_you():
 def welcome():
 	return "Welcome to SI 364!"
 
+# Problem 2
+@app.route('/movie/<movie>')
+def movie_info(movie):
+	base_url = "https://itunes.apple.com/search"
+	params_dict = {}
+	params_dict['term'] = movie
+	res = requests.get(base_url, params = params_dict)
+	text = res.text
+	# jsons = json.loads(text)
+	# data = json.dumps(jsons)
+	# return str(jsons)
+	return text
+
 if __name__ == '__main__':
     app.run()
 
